@@ -276,6 +276,8 @@ export const EditUsers: FunctionComponent<RouteComponentProps> = (props) => {
 };
 */
 
+//---------------------------- table stuff --------------------------------------//
+
 const ref = useRef();
 // @ts-ignore
 const buildActions = (index) => {
@@ -332,6 +334,8 @@ const getRows = async (state) => {
         count: parseInt(res.headers["x-total-count"]),
     });
 };
+
+//---------------------------- other stuff --------------------------------------//
 
 const suggestions = [
     { text: "alfa" },
