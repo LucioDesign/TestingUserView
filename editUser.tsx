@@ -280,7 +280,9 @@ export const EditUsers: FunctionComponent<RouteComponentProps> = (props) => {
 
 //---------------------------- other stuff --------------------------------------//
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+    userTableHeader: { marginTop: theme.spacing(2) },
+}));
 
 const suggestions = [
     { text: "alfa" },
@@ -316,7 +318,7 @@ const onSearch = (value: string) => alert(`Searched for "${value}"`);
 const createdDate = new Date(2018, 1, 14);
 const modifiedDate = new Date();
 
-export const EditUsers: FunctionComponent<RouteComponentProps> = (props) => {
+export const EditUsers: React.FC<FunctionComponent<RouteComponentProps>> = (props) => {
     //---------------------------- table stuff --------------------------------------//
 
     const classes = useStyles();
@@ -389,8 +391,8 @@ export const EditUsers: FunctionComponent<RouteComponentProps> = (props) => {
     ];
 
     return (
-        <Grid container={true} spacing={1}>
-            <Grid item={true} xs={9}>
+        <Grid container={true} spacing={4}>
+            <Grid item={true} xs={12}>
                 <Titlebar
                     id="demo-titlebar"
                     title="User Name"
@@ -409,52 +411,76 @@ export const EditUsers: FunctionComponent<RouteComponentProps> = (props) => {
                         </Link>,
                     ]}
                 />
-                <Grid item={true} xs={12}>
-                    <Grid container={true} justify="space-between">
-                        <Grid item={true}>
-                            <TextInput label="Name" readOnly={true} value="Name" />
-                        </Grid>
-                        <Grid item={true}>
-                            <TextInput label="Last Name" readOnly={true} value="Last Name" />
-                        </Grid>
-                        <Grid item={true}>
-                            <TextInput label="Email" readOnly={true} value="testing@email.com" />
+            </Grid>
+            <Grid item={true} xs={12}>
+                <Grid container={true} justify="space-between">
+                    <Grid item={true} xs={12} sm={9}>
+                        <Grid container={true}>
+                            <Grid item={true} xs={12}>
+                                <Grid container={true} justify="space-between">
+                                    <Grid item={true} xs={12} sm="auto">
+                                        <TextInput
+                                            label="First Name"
+                                            readOnly={true}
+                                            value="First Name"
+                                            fullWidth={true}
+                                        />
+                                    </Grid>
+                                    <Grid item={true} xs={12} sm="auto">
+                                        <TextInput
+                                            label="Last Name"
+                                            readOnly={true}
+                                            value="Last Name"
+                                            fullWidth={true}
+                                        />
+                                    </Grid>
+                                    <Grid item={true} xs={12} sm="auto">
+                                        <TextInput
+                                            label="Email"
+                                            readOnly={true}
+                                            value="testing@email.com"
+                                            fullWidth={true}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                            <Grid item={true} xs={12}>
+                                <SearchInput
+                                    id="example"
+                                    suggestions={suggestions}
+                                    onSearch={onSearch}
+                                    // @ts-ignore
+                                    fullWidth={true}
+                                    label="Add Group"
+                                    labelProps={{ shrink: true }}
+                                />
+                            </Grid>
+                            <Grid item={true} xs={true} id="organization-group-table">
+                                <Typography variant="h6" title="Group Memberships" className={classes.userTableHeader}>
+                                    Group Memberships
+                                </Typography>
+                                <AdvancedTableWrapper
+                                    columns={columns}
+                                    scrollToTop={true}
+                                    showFilter={false}
+                                    showSearch={true}
+                                    minSearchLength={2}
+                                    rows={getRows}
+                                    initialSortColumn="name"
+                                    initialSortColumnIndex={1}
+                                    initialSortDirection="asc"
+                                    emptyMessage="This user has no groups."
+                                    ref={refContainer}
+                                    rowsPerPage={25}
+                                    rowsPerPageOptions={[25, 50, 100]}
+                                />
+                            </Grid>
                         </Grid>
                     </Grid>
+                    <Grid item={true} xs={12} sm="auto">
+                        <ItemMeta id="just-dates" createdDate={createdDate} modifiedDate={modifiedDate} />
+                    </Grid>
                 </Grid>
-                <Grid item={true}>
-                    <SearchInput
-                        id="example"
-                        suggestions={suggestions}
-                        onSearch={onSearch}
-                        // @ts-ignore
-                        fullWidth={true}
-                        label="Name"
-                    />
-                </Grid>
-                <Typography variant="h6" title="Group Memberships">
-                    <div className={classes.userTableHeader}>Group Memberships</div>
-                </Typography>
-            </Grid>
-            <Grid item={true} xs={true} id="organization-group-table">
-                <AdvancedTableWrapper
-                    columns={columns}
-                    scrollToTop={true}
-                    showFilter={false}
-                    showSearch={true}
-                    minSearchLength={2}
-                    rows={getRows}
-                    initialSortColumn="name"
-                    initialSortColumnIndex={1}
-                    initialSortDirection="asc"
-                    emptyMessage="This user has no groups."
-                    ref={refContainer}
-                    rowsPerPage={25}
-                    rowsPerPageOptions={[25, 50, 100]}
-                />
-            </Grid>
-            <Grid item={true} xs={3}>
-                <ItemMeta id="just-dates" createdDate={createdDate} modifiedDate={modifiedDate} />
             </Grid>
         </Grid>
     );
