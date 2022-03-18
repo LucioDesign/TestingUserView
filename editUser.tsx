@@ -23,7 +23,9 @@ import Table from "@civicplus/preamble/lib/Table";
 import TextInput from "@civicplus/preamble/lib/TextInput";
 import SearchInput from "@civicplus/preamble/lib/SearchInput";
 import ItemMeta from "@civicplus/preamble/lib/ItemMeta";
-import axios from "axios";
+import { groups } from "./dummyData";
+import { Group } from "./types";
+import { makeStyles, Paper } from "@material-ui/core";
 
 /*
 export const EditUsers: FunctionComponent<RouteComponentProps> = (props) => {
@@ -276,66 +278,9 @@ export const EditUsers: FunctionComponent<RouteComponentProps> = (props) => {
 };
 */
 
-//---------------------------- table stuff --------------------------------------//
-
-const ref = useRef();
-// @ts-ignore
-const buildActions = (index) => {
-    return [
-        {
-            display: "Delete",
-            action: () => {
-                // @ts-ignore
-                ref && ref.current.deleteRow(+index);
-            },
-        },
-    ];
-};
-// @ts-ignore
-const renderMenu = (value, tableData) => (
-    <Menu id="actions-1" key="actions-1" type="action" items={buildActions(tableData.rowIndex++)} />
-);
-
-const columns = [
-    {
-        name: "name",
-        displayName: "Name",
-        options: { sort: true },
-    },
-    { name: "email", displayName: "Email", options: { sort: true } },
-    { name: "body", displayName: "Body", options: { sort: true } },
-    {
-        name: "actions",
-        label: "Actions",
-        options: {
-            viewColumns: false,
-            sort: false,
-            searchable: false,
-            filter: false,
-            customBodyRender: renderMenu,
-        },
-    },
-];
-// @ts-ignore
-const getRows = async (state) => {
-    let qs = `?_page=${state.page}&_limit=${state.rowsPerPage}`;
-    if (state.sortColumn && state.sortDirection) {
-        qs = `${qs}&_sort=${state.sortColumn}&_order=${state.sortDirection}`;
-    }
-    if (state.search) {
-        qs = `${qs}&q=${state.search}`;
-    }
-
-    const res = await axios.get(`https://jsonplaceholder.typicode.com/comments${qs}`);
-    // @ts-ignore
-    const processed = res.data.map((item, i) => [item.name, item.email, item.body]);
-    return Promise.resolve({
-        data: processed,
-        count: parseInt(res.headers["x-total-count"]),
-    });
-};
-
 //---------------------------- other stuff --------------------------------------//
+
+const useStyles = makeStyles((theme) => ({}));
 
 const suggestions = [
     { text: "alfa" },
@@ -372,6 +317,77 @@ const createdDate = new Date(2018, 1, 14);
 const modifiedDate = new Date();
 
 export const EditUsers: FunctionComponent<RouteComponentProps> = (props) => {
+    //---------------------------- table stuff --------------------------------------//
+
+    const classes = useStyles();
+
+    const refContainer = useRef<AdvancedTableWrapper | null>(null);
+
+    useEffect(() => {
+        const tableRef = refContainer && (refContainer.current as AdvancedTableWrapper);
+        tableRef.loadRows();
+    }, []);
+
+    const buildActions = (
+        item: Group,
+        index: number
+    ): {
+        display: string;
+        action: () => void;
+    }[] => {
+        const results = [
+            {
+                display: "Modify",
+                action: (): void => {},
+            },
+            {
+                display: "Delete",
+                action: (): void => {},
+            },
+        ];
+        return results;
+    };
+
+    const mapData = (item: Group, index: number): (string | number | undefined | JSX.Element)[] => {
+        const res = [
+            item.id,
+            item.name,
+            item.membership,
+            <Menu
+                id={`actions-${item.id}`}
+                key={`actions-${index}`}
+                stopPropagation={true}
+                type="action"
+                items={buildActions(item, index)}
+            />,
+        ];
+        return res;
+    };
+
+    const getRows = async (state: TableState): Promise<TableData> => {
+        const data = groups.map((item: Group, index: number) => mapData(item, index));
+        return { data: data, count: groups.length };
+    };
+
+    const columns = [
+        {
+            name: "id",
+            label: "Id",
+            options: { display: "false" },
+        },
+        {
+            name: "name",
+            label: "Name",
+            options: { sort: "true" },
+        },
+        {
+            name: "membership",
+            label: "Membership",
+            options: { sort: "true" },
+        },
+        AdvancedTableWrapper.defaultActionMenuColumn(),
+    ];
+
     return (
         <Grid container={true} spacing={1}>
             <Grid item={true} xs={9}>
@@ -417,24 +433,25 @@ export const EditUsers: FunctionComponent<RouteComponentProps> = (props) => {
                     />
                 </Grid>
                 <Typography variant="h6" title="Group Memberships">
-                    Group Memberships
+                    <div className={classes.userTableHeader}>Group Memberships</div>
                 </Typography>
+            </Grid>
+            <Grid item={true} xs={true} id="organization-group-table">
                 <AdvancedTableWrapper
-                    enablePreload={true}
                     columns={columns}
-                    serverSide={true}
+                    scrollToTop={true}
+                    showFilter={false}
                     showSearch={true}
-                    download={true}
-                    showFilter={true}
+                    minSearchLength={2}
                     rows={getRows}
                     initialSortColumn="name"
-                    initialSortColumnIndex={0}
+                    initialSortColumnIndex={1}
                     initialSortDirection="asc"
-                    emptyMessage="You have no data!"
-                    // @ts-ignore
-                    ref={ref}
+                    emptyMessage="This user has no groups."
+                    ref={refContainer}
+                    rowsPerPage={25}
+                    rowsPerPageOptions={[25, 50, 100]}
                 />
-                ;
             </Grid>
             <Grid item={true} xs={3}>
                 <ItemMeta id="just-dates" createdDate={createdDate} modifiedDate={modifiedDate} />
